@@ -473,7 +473,7 @@ public class ServidorPoker {
 							auxCubierto+= Integer.toString(cartas[i].getNumero())+Integer.toString(cartas[i].getPalo());
 						}
 						else
-							auxCubierto+= Integer.toString(0)+Integer.toString(cartas[i].getPalo());
+							auxCubierto+= Integer.toString(0)+Integer.toString(cartas[i].getNumero())+Integer.toString(cartas[i].getPalo());
 							
 					}
 					
