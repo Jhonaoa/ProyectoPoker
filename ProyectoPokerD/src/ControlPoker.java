@@ -42,6 +42,7 @@ public class ControlPoker {
 	
 	
 	
+	
 	public void repartir(int num,Carta[] comunes,Carta[]mazo)
 	{
 		int aleatorio1= 0;
