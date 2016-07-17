@@ -86,6 +86,7 @@ public class ClientePoker extends JFrame  implements  Runnable{
 //		super("PROYECTO PI ");
 //		nombreHost = host; 
 //	
+		miTurno = false;
 		mesaDeJuego = tipoDeJuego; 
 		cartasRecibidas= "";
 		miIdentidad ="";
@@ -262,6 +263,7 @@ public class ClientePoker extends JFrame  implements  Runnable{
 	public void run() 
 	{
 		salida.format("%d\n", mesaDeJuego);
+//		System.out.println(mesaDeJuego);
 		salida.flush();
 		miIdentidad = entrada.nextLine();
 		//System.out.println(miIdentidad);
@@ -275,7 +277,7 @@ public class ClientePoker extends JFrame  implements  Runnable{
 		{
 			recibirCartas(5);
 		}
-		miTurno = (miIdentidad.equals("0"));
+//		miTurno = (miIdentidad.equals("0"));
 		
 //		int mensaje = -1; 
 //		if(entrada.hasNextInt())
@@ -337,12 +339,12 @@ public class ClientePoker extends JFrame  implements  Runnable{
 	public void procesarMensaje (String codigo)
 	{
 	
-		System.out.println(codigo);
+		
 		
 		if(codigo.equals("0")) //codigo para recibir el valor de apuesta a igualar, o apuesta mÃ­nima.
 		{
 			int auxInt= 0; 
-			miTurno = true;
+//			miTurno = true;
 			auxInt= entrada.nextInt(); 
 			setValorApuesta(auxInt);
 		}
@@ -402,9 +404,34 @@ public class ClientePoker extends JFrame  implements  Runnable{
 		{
 			
 			mostrarMensaje(codigo);
-			miTurno=true;
+//			miTurno=true;
 		}
+		else if (codigo.equals("actualizar interfaz"))
+		{
+			
+			mostrarMensaje(codigo);
+			
+			
+		}
+		
+		
 		else if(codigo.equals("El otro jugador se conecto. Ahora es su turno."))
+		{
+			mostrarMensaje(codigo);
+			miTurno = true;
+		}
+		
+		else if(codigo.equals("te toca la ciega pequen¿a"))
+		{
+			mostrarMensaje(codigo);
+		}
+		
+		else if(codigo.equals("te toca la ciega grande"))
+		{
+			mostrarMensaje(codigo);
+		}
+		
+		else if(codigo.equals("eres el dealer"))
 		{
 			mostrarMensaje(codigo);
 		}
@@ -440,8 +467,8 @@ public class ClientePoker extends JFrame  implements  Runnable{
 		
 		else if (codigo.equals("9")) //para finalizar la fase de descarte
 		{
-			System.out.println("holiiiii");
-			mostrarMensaje ("eres el jugador 1"); 
+			
+			mostrarMensaje ("te toca jugar"); 
 		}
 			
 		else 
@@ -772,17 +799,31 @@ public class ClientePoker extends JFrame  implements  Runnable{
 			{
 				
 //				salida.format("%d\n", valorApuesta); //lee del socket el valor de apuesta mÃ­nima 
-//				salida.flush(); 
+//				salida.flush();
+				
 				mostrarMensaje("Has Apostado " + valorApuesta +"\n");
 				mostrarMensaje("Turno Finalizado\n");
 				setDineroRestante(valorApuesta);  // resta el valor apostado al dinero restante
-					
+				
 				salida.format("%d\n",3); //CODIGO PARA RETIRARSEr
 				salida.flush() ; 
-				System.out.println("Apuesta: "  + valorApuesta);
-				valorApuesta = 0; 
+				salida.format("%d\n", valorApuesta); //lee del socket el valor de apuesta mÃ­nima 
+				salida.flush();
+				
+				System.out.println("Apuesta: "  + miIdentidad);
 				miTurno = false; 
 			}
+	    	
+			else if (e.getSource() == botonIgualar)
+			{
+				mostrarMensaje("Igualas la apuesta \n"); 
+				salida.format("%d\n", 4);
+				salida.flush(); 
+				salida.format("%d\n", dineroApostado);
+				salida.flush(); 
+				miTurno = false; 
+			}
+	    	
 			else if(e.getSource() == botonRetirarse)
 			{
 //				salida.format("%d\n", 3); //CODIGO PARA RETIRARSEr
@@ -794,14 +835,6 @@ public class ClientePoker extends JFrame  implements  Runnable{
 				
 				System.out.println("Jugador "  + posicionEnMesa +"se retira" );
 				
-			}
-			else if (e.getSource() == botonIgualar)
-			{
-				mostrarMensaje("Igualas la apuesta \n"); 
-				salida.format("%d\n", 4);
-				salida.flush(); 
-				salida.format("%d\n", dineroApostado);
-				salida.flush(); 
 			}
 			else if(e.getSource () == botonPasar)
 			{
@@ -831,7 +864,7 @@ public class ClientePoker extends JFrame  implements  Runnable{
 	    				
 	    				cartas[i].setBounds(400+(i*140), 80, 120, 180);
 	    				cartas[i].setForeground(new java.awt.Color(255,230,0));
-	    				System.out.println("entra al if");
+//	    				System.out.println("entra al if");
 	    				
 	    			}
 	    			else if(e.getSource() == cartas[i] ) // && cartasMano[i].getDescartar() )
