@@ -289,7 +289,7 @@ public class ServidorPoker {
 		private boolean suspendido = true; // indica si el subproceso estÃ¯Â¿Â½ suspendido
 		private int tipoJuego;
 		private Carta[] cartas;
-		private int marcador;
+		private int puntajeJugada;
 		private int jugada;
 		private int contador;
 		private int auxInt;
@@ -309,7 +309,7 @@ public class ServidorPoker {
 			conexion = socket;
 			auxInt = 0;
 			dinero = 300;
-			marcador =0;
+			 puntajeJugada =0;
 			numeroJugador = 0;
 			cartas = new Carta[7];
 			for(int i = 0; i< 7; i++)
@@ -401,7 +401,7 @@ public class ServidorPoker {
 		public void otroJugadorMovio(Jugador jugadores[],int jugadorActual,String aux)
 		{
 			if(terminarJuego() == true 
-					&& jugadores[jugadorActual].getMarcador()!=13)
+					&& jugadores[jugadorActual].getPuntajeJugada()!=13)
 			{
 				salida.format( "El otro jugador ha ganado\n" );
 				salida.flush();
@@ -778,7 +778,7 @@ public class ServidorPoker {
 				try {
 					
 					if (terminarJuego() == true 
-							&& jugadores[jugadorActualTexas].getMarcador() ==5)
+							&& jugadores[jugadorActualTexas].getPuntajeJugada() ==5)
 					{
 						
 						salida.format( "Has ganado!!" );
@@ -799,6 +799,40 @@ public class ServidorPoker {
 			
 		}	
 		
+		 public void setPuntajeMano()
+		{
+			//metodo de ordenar manos
+			ordenar(cartas);
+			if (controlJuego.hayEscaleraReal (cartas) ) 
+				puntajeJugada = 10000 ; 
+			
+			else if (controlJuego.hayEscaleraColor(cartas) )
+				puntajeJugada = 9000 ;
+			
+			else if (controlJuego.hayPoker(cartas))
+				puntajeJugada = 8000 ;
+			
+			else if (controlJuego.hayFull (cartas))
+				puntajeJugada = 7000;
+			else if (controlJuego.hayColor(cartas))
+				puntajeJugada = 6000;
+			else if(controlJuego.hayEscalera (cartas))
+				puntajeJugada = 5000; 
+			else if (controlJuego.hayTrio (cartas))
+			puntajeJugada = 4000; 
+			else if (controlJuego.hayDoblePareja (cartas))
+				puntajeJugada = 3000; 
+			else if (controlJuego.hayPar(cartas))
+				puntajeJugada = 2000; 
+			
+	 
+			puntajeJugada += cartas[cartas.length].getNumero() ; 
+				
+		}
+ 
+ 		public int getNumeroJugador() {
+ 			return numeroJugador;
+ 		}
 		public int getApuestaAcumulada() {
 			return apuestaAcumulada;
 		}
@@ -808,11 +842,6 @@ public class ServidorPoker {
 		}
 	
 		
-
-		public int getNumeroJugador() {
-			return numeroJugador;
-		}
-
 		public void setNumeroJugador(int numeroJugador) {
 			this.numeroJugador = numeroJugador;
 		}
@@ -825,12 +854,12 @@ public class ServidorPoker {
 			this.suspendido = suspendido;
 		}
 		
-		public int getMarcador() {
-			return marcador;
+		public int getPuntajeJugada() {
+			return puntajeJugada;
 		}
 	
-		public void setMarcador(int marcador) {
-			this.marcador = marcador;
+		public void setPuntajeJugada(int puntajeJugadar) {
+			this.puntajeJugada = puntajeJugada;
 		}
 		
 		public int getTipoJuego() {
