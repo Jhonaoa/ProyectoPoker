@@ -1,5 +1,5 @@
 //@nombre: Jhon Alejandro Orobio 
-//@código: 1533627
+//@cÃ³digo: 1533627
 //@fecha: 17/junio/2016
 
 
@@ -30,7 +30,7 @@ public class ServidorPoker {
 	private ControlJuego[] controles;
 	private ServerSocket servidor; // socket servidor
 	private int contador1;
-	private int contador2;// contador del nï¿½mero de conexiones
+	private int contador2;// contador del nÃ¯Â¿Â½mero de conexiones
 	private int contador;
 	private ExecutorService ejecutarJuego;
 
@@ -53,10 +53,16 @@ public class ServidorPoker {
 	private int apuestaTotalTexas;
 	private int apuestaTotalCubierto;
 	private int cuentaTurno;
-	
-	
+	private int boteTexas;
+	private int boteCubierto;
+	private int numeroRondaTexas;
+	private int numeroRondaCubierto;
 	public ServidorPoker() 
 	{
+		numeroRondaTexas = 0;
+		numeroRondaCubierto = 0;
+		boteTexas = 0;
+		boteCubierto = 0;
 		dealerTexas = (int)(Math.random()*3);
 		dealerCubierto = (int)(Math.random()*3);
 		apuestaTexas = 0;
@@ -131,7 +137,7 @@ public class ServidorPoker {
 				}
 				jugadores[i] = new Jugador( servidor.accept() );
 				jugadores[i].setNumeroJugador(contador++);
-				ejecutarJuego.execute(jugadores[i]);//establece la conexiï¿½n via Socket
+				ejecutarJuego.execute(jugadores[i]);//establece la conexiÃ¯Â¿Â½n via Socket
 //				System.out.println(jugadores[i].getNumeroJugador());
 			
 		} // fin de try
@@ -149,7 +155,7 @@ public class ServidorPoker {
 	
 	
 	
-	public boolean turnos(int jugador, Jugador jugadores[], int jugadorActual,String aux,int apuesta ) 
+	public boolean turnos(int jugador, Jugador jugadores[], int jugadorActual,String aux,int apuesta) 
 	{
 		boolean resultado = false;
 		// mientras no sea el jugador actual, debe esperar su turno
@@ -166,7 +172,7 @@ public class ServidorPoker {
 			} 
 			finally
 			{
-				bloqueoJuego.unlock(); // desbloquea el juego despuï¿½s de esperar
+				bloqueoJuego.unlock(); // desbloquea el juego despuÃ¯Â¿Â½s de esperar
 			} 
 		
 		}
@@ -179,14 +185,14 @@ public class ServidorPoker {
 					{
 						jugadores[jugadorActual].setJugada(0);
 						
-						for (int i = 0;i < 4;i++)
+						for (int i = 0;i < 3;i++)
 			        	{
 					 		cuentaTurno = ( cuentaTurno + 1 ) % 4;
 			        		jugadores[cuentaTurno].actualizarInterfaces(aux);
-			        		System.out.println("holaaa: "+cuentaTurno);
 			        		
+			        		System.out.println("cambio"+" "+cuentaTurno);
 			        	}
-						
+						System.out.println("jugador actualholi: "+jugadorActualTexas); 
 					 	
 						jugadorActual = ( jugadorActual + 1 ) % 4;
 						
@@ -194,17 +200,20 @@ public class ServidorPoker {
 						{
 							
 					 	 jugadorActualTexas = ( jugadorActualTexas + 1 ) % 4;
-					 	 jugadores[jugadorActualTexas].otroJugadorMovio(jugadores, jugadorActualTexas,aux);
+					 	 String aux2 = Integer.toString(apuesta); 
+					 	 jugadores[jugadorActualTexas].otroJugadorMovio(jugadores, jugadorActualTexas,aux2);
 						}  
 						
 						else if(jugadores[jugadorActual].getTipoJuego() == 2)
 						{
 							
+							
 					 	 jugadorActualCubierto = ( jugadorActualCubierto + 1 ) % 4;
-					 	 jugadores[jugadorActualCubierto].otroJugadorMovio(jugadores, jugadorActualCubierto,aux);
+					 	 String aux2 = Integer.toString(apuesta); 
+					 	 jugadores[jugadorActualCubierto].otroJugadorMovio(jugadores, jugadorActualCubierto,aux2);
 						}  
 						
-					 	
+					 	System.out.println("jugador actuachao: "+jugadorActualTexas); 
 		//	           
 			            bloqueoJuego.lock(); // bloquea el juego para indicar al otro jugador que realice su movimiento
 			            
@@ -221,8 +230,8 @@ public class ServidorPoker {
 				}
 			 else 
 			    {
-			        resultado = false; // notifica al jugador que el movimiento fue inv�lido
-			  // notifica al jugador que el movimiento fue invï¿½lido
+			        resultado = false; // notifica al jugador que el movimiento fue invï¿½lido
+			  // notifica al jugador que el movimiento fue invÃ¯Â¿Â½lido
 			    }
 			
 			return resultado;
@@ -231,6 +240,28 @@ public class ServidorPoker {
     
 	
 		}
+	
+	
+	public int actualizarRonda(int ronda)
+	{
+		int contador = 0;
+		
+		
+		for(int i = 1; i<4;i++)
+		{
+			if(jugadores[0].getApuestaAcumulada()==jugadores[i].getApuestaAcumulada())
+			{
+				contador++;
+			}
+		}
+		
+		if(contador ==3)
+		{
+			ronda++;
+		}
+		
+		return ronda;
+	}
    
 	
 	
@@ -251,23 +282,26 @@ public class ServidorPoker {
 	
 	public class Jugador implements Runnable{
 
-		private Socket conexion; // conexiï¿½n con el cliente
+		private Socket conexion; // conexiÃ¯Â¿Â½n con el cliente
 		private Scanner entrada; // entrada del cliente
 		private Formatter salida; // salida al cliente
 		private int numeroJugador; // identifica al Jugador
-		private boolean suspendido = true; // indica si el subproceso estï¿½ suspendido
+		private boolean suspendido = true; // indica si el subproceso estÃ¯Â¿Â½ suspendido
 		private int tipoJuego;
 		private Carta[] cartas;
-		private int puntajeJugada;
+		private int marcador;
 		private int jugada;
 		private int contador;
 		private int auxInt;
 		private int dinero;
 		private int apuestaAcumulada;
+		private String posiciones;
 		
-		
+	
+
 		public Jugador (Socket socket)
 		{
+			posiciones = "";
 			apuestaAcumulada = 0;
 			contador = 0;
 			tipoJuego = 0;
@@ -275,7 +309,7 @@ public class ServidorPoker {
 			conexion = socket;
 			auxInt = 0;
 			dinero = 300;
-			puntajeJugada =0;
+			marcador =0;
 			numeroJugador = 0;
 			cartas = new Carta[7];
 			for(int i = 0; i< 7; i++)
@@ -307,6 +341,19 @@ public class ServidorPoker {
 				contador2++;
 			}
 		}
+		
+		public void cartasAIntercambiar(int pos)
+		{
+			if(tipoJuego ==1)
+			{
+				controlJuego.repartir(1, cartas, mazo1, pos);
+			}
+			else if(tipoJuego ==2)
+			{
+				controlJuego.repartir(1, cartas, mazo2, pos);
+			}
+		}
+		
 		
 		public void actualizarInterfaces(String aux)
 		{
@@ -354,7 +401,7 @@ public class ServidorPoker {
 		public void otroJugadorMovio(Jugador jugadores[],int jugadorActual,String aux)
 		{
 			if(terminarJuego() == true 
-					&& jugadores[jugadorActual].getPuntajeJugada()!=13)
+					&& jugadores[jugadorActual].getMarcador()!=13)
 			{
 				salida.format( "El otro jugador ha ganado\n" );
 				salida.flush();
@@ -366,6 +413,9 @@ public class ServidorPoker {
 //				System.out.println(this.getJugada());
 				System.out.println("jugador actual: "+jugadorActual); 
 				salida.format("El otro jugador movio, es tu turno\n");
+				salida.flush();
+				int auxInt = Integer.parseInt(aux);
+				salida.format("%d\n",auxInt);
 				salida.flush();
 				
 			}
@@ -395,7 +445,7 @@ public class ServidorPoker {
 					
 					ejecutarJuego.execute( controles[0]);
 					
-					 // continï¿½a el jugador X
+					 // continÃ¯Â¿Â½a el jugador X
 					// despierta el subproceso del jugador X// ejecuta el objeto Runnable jugador
 				}
 			
@@ -417,7 +467,7 @@ public class ServidorPoker {
 				acomodarJugador();
 				
 				salida.format("%s\n",Integer.toString(numeroJugador));
-//				System.out.println("numero jugador: "+numeroJugador);
+				System.out.println("numero jugador: "+numeroJugador);
 				salida.flush();
 				
 				if(tipoJuego ==1)
@@ -466,7 +516,7 @@ public class ServidorPoker {
 				if(tipoJuego ==2)
 				{
 				
-					for(int i = 0; i<7;i++)
+					for(int i = 0; i<5;i++)
 					{
 						if((Integer.toString(cartas[i].getNumero())).length()==2)
 						{
@@ -507,7 +557,7 @@ public class ServidorPoker {
 					
 					
 					salida.format( "El otro jugador se conecto. Ahora es su turno.\n" );
-					salida.flush(); // vacï¿½a la salida
+					salida.flush(); // vacÃ¯Â¿Â½a la salida
 					}
 					
 					else if(numeroJugador == dealerCubierto && tipoJuego == 2)
@@ -531,42 +581,43 @@ public class ServidorPoker {
 						} // fin de finally
 					
 					salida.format( "El otro jugador se conecto. Ahora es su turno.\n" );
-					salida.flush(); // vacï¿½a la salida
+					salida.flush(); // vacÃ¯Â¿Â½a la salida
 				
 					}
 					
 					else if(numeroJugador == ((dealerTexas+1) % 4) && tipoJuego == 1)
 					{
 //						salida.format("eres el jugador:\n" );
-//						//envía el numero de jugador para identificarlo 
-//						salida.flush(); // vacï¿½a la salida
+//						//envÃ­a el numero de jugador para identificarlo 
+//						salida.flush(); // vacÃ¯Â¿Â½a la salida
 						salida.format("eres el dealer\n");
 						salida.flush();
 					}
 					
 					else if(numeroJugador == ((dealerTexas+2) % 4) && tipoJuego == 1)
 					{
-//						salida.format("eres el jugador:\n" );
-//						//envía el numero de jugador para identificarlo 
-//						salida.flush(); // vacï¿½a la salida
+						dinero = dinero-20;
+	
 						salida.format("te toca la ciega pequena\n");
 						salida.flush();
+						
 					}
 					
 					else if(numeroJugador == ((dealerTexas+3) % 4) && tipoJuego == 1)
 					{
-//						salida.format("eres el jugador:\n" );
-//						//envía el numero de jugador para identificarlo 
-//						salida.flush(); // vacï¿½a la salida
+						dinero = dinero-40;
+						
 						salida.format("te toca la ciega grande\n");
 						salida.flush();
+						
+						
 					}
 				
 					else
 					{
 						salida.format("eres el jugador:\n" );
-						//envía el numero de jugador para identificarlo 
-						salida.flush(); // vacï¿½a la salida
+						//envÃ­a el numero de jugador para identificarlo 
+						salida.flush(); // vacÃ¯Â¿Â½a la salida
 					}
 					
 					// fin de if
@@ -575,8 +626,9 @@ public class ServidorPoker {
 			// fin de else
 			while(!terminarJuego())
 			{
-			try
-			{
+				try
+				{
+					
 						if(entrada.hasNext())
 							{
 							
@@ -592,6 +644,11 @@ public class ServidorPoker {
 										jugadores[jugadorActualTexas].setJugada(auxInt);
 										dinero = dinero-apuestaTexas;
 										apuestaAcumulada += apuestaTexas;
+										boteTexas += apuestaAcumulada;
+										salida.format("numero de ronda\n");
+										salida.flush();
+										salida.format("%d\n",actualizarRonda(numeroRondaTexas));
+										salida.flush();
 	//									System.out.println("soy la jugada: "+jugadores[jugadorActualTexas].getJugada()+" "+jugadorActualTexas );
 									}
 									
@@ -599,6 +656,14 @@ public class ServidorPoker {
 									{
 										apuestaCubierto = entrada.nextInt();
 										jugadores[jugadorActualCubierto].setJugada(auxInt);
+										dinero = dinero-apuestaCubierto;
+										apuestaAcumulada += apuestaCubierto;
+										boteCubierto += apuestaAcumulada;
+										salida.format("numero de ronda\n");
+										salida.flush();
+										salida.format("%d\n",actualizarRonda(numeroRondaCubierto));
+										salida.flush();
+										
 									
 									}
 								}
@@ -608,8 +673,7 @@ public class ServidorPoker {
 								{
 									
 									apuestaTotalTexas = entrada.nextInt();
-									jugadores[jugadorActualTexas].setJugada(auxInt);
-									
+									jugadores[jugadorActualTexas].setJugada(3);
 									dinero = dinero -(apuestaTexas-apuestaAcumulada);
 //									System.out.println("soy la jugada: "+jugadores[jugadorActualTexas].getJugada()+" "+jugadorActualTexas );
 								}
@@ -617,11 +681,51 @@ public class ServidorPoker {
 								if(tipoJuego == 2)
 								{
 									apuestaTotalCubierto = entrada.nextInt();
-									jugadores[jugadorActualCubierto].setJugada(auxInt);
-									
+									jugadores[jugadorActualCubierto].setJugada(3);
 									dinero = dinero -(apuestaCubierto-apuestaAcumulada);
 								
 								}
+							}
+							
+							else  if(auxInt == 5)
+							{
+								posiciones = entrada.nextLine();
+								int  aux = 0;
+								for(int i = 0; i <posiciones.length();i++)
+								{
+									aux = Integer.parseInt(String.valueOf(posiciones.charAt(i)));
+									cartasAIntercambiar(aux);
+								}
+								
+								for(int i = 0; i<5;i++)
+								{
+									if((Integer.toString(cartas[i].getNumero())).length()==2)
+									{
+										auxCubierto+= Integer.toString(cartas[i].getNumero())+Integer.toString(cartas[i].getPalo());
+									}
+									else
+										auxCubierto+= Integer.toString(0)+Integer.toString(cartas[i].getNumero())+Integer.toString(cartas[i].getPalo());
+										
+								}
+								
+								salida.format("%s\n","nuevas cartas");
+								
+								salida.flush();
+								salida.format("%s\n",auxCubierto);
+								auxCubierto= "";
+								salida.flush();
+//								if(tipoJuego == 1)
+//								{
+//									
+//									apuestaTotalTexas = entrada.nextInt();
+//									jugadores[jugadorActualTexas].setJugada(3);
+//									dinero = dinero -(apuestaTexas-apuestaAcumulada);
+////									System.out.println("soy la jugada: "+jugadores[jugadorActualTexas].getJugada()+" "+jugadorActualTexas );
+//								}
+								
+								
+								
+								
 							}
 							
 							}
@@ -634,6 +738,7 @@ public class ServidorPoker {
 					
 					if(tipoJuego == 1)
 					{
+						auxTexas = Integer.toString(boteTexas);
 						
 						if(turnos(numeroJugador,jugadoresTexas,jugadorActualTexas,auxTexas,apuestaTexas))
 						{
@@ -650,6 +755,9 @@ public class ServidorPoker {
 					}
 					else if(tipoJuego == 2)
 					{
+						
+						auxCubierto = Integer.toString(boteCubierto);
+						
 						if(turnos(numeroJugador,jugadoresCubierto,jugadorActualCubierto,auxCubierto,apuestaCubierto))
 						{
 							salida.format("Jugador ha movido\n");
@@ -670,16 +778,16 @@ public class ServidorPoker {
 				try {
 					
 					if (terminarJuego() == true 
-							&& jugadores[jugadorActualTexas].getPuntajeJugada() ==5)
+							&& jugadores[jugadorActualTexas].getMarcador() ==5)
 					{
 						
 						salida.format( "Has ganado!!" );
 				 	 	jugadorActualTexas = ( jugadorActualTexas + 1 ) % 4;
-//				 	 	System.out.println(auxTexas);
+				 	 	System.out.println(auxTexas);
 			            jugadores[ jugadorActualTexas ].otroJugadorMovio(jugadoresTexas,jugadorActualTexas,auxTexas);
 						salida.flush();
 					}
-					conexion.close(); // cierra la conexiï¿½n con el cliente
+					conexion.close(); // cierra la conexiÃ¯Â¿Â½n con el cliente
 				} // fin de try
 				catch ( IOException excepcionES ){
 					excepcionES.printStackTrace();
@@ -691,35 +799,13 @@ public class ServidorPoker {
 			
 		}	
 		
-		 public void setPuntajeMano()
-			{
-				//metodo de ordenar manos
-				if (controlJuego.hayEscaleraReal (cartas) ) 
-					puntajeJugada = 10000 ; 
-				
-				else if (controlJuego.hayEscaleraColor(cartas) )
-					puntajeJugada = 9000 ;
-				
-				else if (controlJuego.hayPoker(cartas))
-					puntajeJugada = 8000 ;
-				
-				else if (controlJuego.hayFull (cartas))
-					puntajeJugada = 7000;
-				else if (controlJuego.hayColor(cartas))
-					puntajeJugada = 6000;
-				else if(controlJuego.hayEscalera (cartas))
-					puntajeJugada = 5000; 
-				else if (controlJuego.hayTrio (cartas))
-					puntajeJugada = 4000; 
-				else if (controlJuego.hayDoblePareja (cartas))
-					puntajeJugada = 3000; 
-				else if (controlJuego.hayPar(cartas))
-					puntajeJugada = 2000; 
-				
-				 
-				puntajeJugada += cartas[cartas.length].getNumero() ; 
-					
-			}
+		public int getApuestaAcumulada() {
+			return apuestaAcumulada;
+		}
+
+		public void setApuestaAcumulada(int apuestaAcumulada) {
+			this.apuestaAcumulada = apuestaAcumulada;
+		}
 	
 		
 
@@ -739,12 +825,12 @@ public class ServidorPoker {
 			this.suspendido = suspendido;
 		}
 		
-		public int getPuntajeJugada() {
-			return puntajeJugada;
+		public int getMarcador() {
+			return marcador;
 		}
 	
-		public void setMarcador(int puntajeJugada) {
-			this.puntajeJugada = puntajeJugada;
+		public void setMarcador(int marcador) {
+			this.marcador = marcador;
 		}
 		
 		public int getTipoJuego() {
@@ -798,13 +884,13 @@ public class ServidorPoker {
 			
 			try {
 				
-					jugadorLocal[dealer].establecerSuspendido( false ); // continï¿½a el jugador X
+					jugadorLocal[dealer].establecerSuspendido( false ); // continÃ¯Â¿Â½a el jugador X
 					otroJugadorConectado.signal(); // despierta el subproceso del jugador X
 				
 				
 			} // fin de try
 			finally{
-				bloqueoJuego.unlock(); // desbloquea el juego despuï¿½s de avisar al jugador X
+				bloqueoJuego.unlock(); // desbloquea el juego despuÃ¯Â¿Â½s de avisar al jugador X
 			}
 			
 		
