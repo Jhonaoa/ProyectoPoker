@@ -63,6 +63,25 @@ public class ControlPoker {
 		}
 	}
 	
+	public void repartir(int num,Carta[] comunes,Carta[]mazo,int pos)
+	{
+		int aleatorio1= 0;
+		int contador = 0;
+		
+		while(contador != num)
+		{
+			aleatorio1 = (int)(Math.random()*52);
+			
+			while(mazo[aleatorio1].getNumero() != 0)
+			{
+				comunes[pos].setNumero(mazo[aleatorio1].getNumero());
+				comunes[pos].setPalo(mazo[aleatorio1].getPalo());
+				mazo[aleatorio1].setNumero(0);
+				contador++;
+				
+			}
+		}
+	}
 	
 	public Carta[] getMazo1() {
 		return mazo1;
